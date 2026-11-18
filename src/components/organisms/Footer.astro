@@ -15,15 +15,11 @@ const links = [
 	{ label: "RSS", href: url("rss/") },
 	{ label: "Atom", href: url("atom/") },
 	{ label: "Sitemap", href: url("sitemap-index.xml"), external: true },
-	...(import.meta.env.DEV
-		? [
-				{
-					label: "内容工作台",
-					href: url("/admin/index.html"),
-					noSwup: true,
-				},
-			]
-		: []),
+	{
+		label: "内容管理",
+		href: import.meta.env.DEV ? url("/admin/index.html") : url("/admin/"),
+		noSwup: true,
+	},
 ];
 const isShironesPackage = packageMetadata.name === "shirones";
 const poweredBy = [

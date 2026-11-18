@@ -1,0 +1,49 @@
+{
+	"profile": {
+		"title": "音乐空间",
+		"description": "一些自己生成的氛围音，适合阅读、写代码或发呆时循环播放。所有曲目均为本项目原创合成的演示音源。",
+		"note": "本地音源 · 无第三方接口 · 首次播放需要你点击播放按钮"
+	},
+	"tracks": [
+		{
+			"id": "paper-moon",
+			"title": "Paper Moon",
+			"artist": "Alanke Audio",
+			"album": "Quiet Hours",
+			"cover": "/media/music/cover/paper-moon.webp",
+			"source": "/assets/music/url/paper-moon.mp3",
+			"duration": 80,
+			"lyrics": "[00:00] Paper Moon\n[00:12] A quiet light above the desk\n[00:28] Folding the evening into code\n[00:44] Nothing to prove, nothing to rush\n[01:02] Just a soft loop of blue and dusk"
+		},
+		{
+			"id": "night-train",
+			"title": "Night Train",
+			"artist": "Alanke Audio",
+			"album": "Quiet Hours",
+			"cover": "/media/music/cover/night-train.webp",
+			"source": "/assets/music/url/night-train.mp3",
+			"duration": 84,
+			"lyrics": "[00:00] Night Train\n[00:15] Windows full of passing lights\n[00:34] A slow pulse under the noise\n[00:53] Carry the thought a little further\n[01:12] Then let it go"
+		},
+		{
+			"id": "quiet-loop",
+			"title": "Quiet Loop",
+			"artist": "Alanke Audio",
+			"album": "Room Tone",
+			"cover": "/media/music/cover/quiet-loop.webp",
+			"source": "/assets/music/url/quiet-loop.mp3",
+			"duration": 74,
+			"lyrics": "[00:00] Quiet Loop\n[00:18] Four chords, one open window\n[00:40] The room breathes in and out\n[01:00] Stay here for a while"
+		},
+		{
+			"id": "soft-static",
+			"title": "Soft Static",
+			"artist": "Alanke Audio",
+			"album": "Room Tone",
+			"cover": "/media/music/cover/soft-static.webp",
+			"source": "/assets/music/url/soft-static.mp3",
+			"duration": 78,
+			"lyrics": "[00:00] Soft Static\n[00:20] Warm noise, a thin horizon\n[00:42] Signals arriving without urgency\n[01:05] The channel stays open"
+		}
+	]
+}

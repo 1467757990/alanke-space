@@ -31,12 +31,13 @@ http://localhost:4321/admin/index.html
 
 1. 点击 **“使用本地仓库”**；
 2. 在弹出的目录选择框里选择项目根目录（包含 `.git` 的 `alanke-space` 文件夹）；
-3. 在左侧选择 **博客文章 / 生活动态 / 关于页面**；
+3. 在左侧选择 **博客文章 / 生活动态 / 音乐空间 / 关于页面**；
 4. 新建文章、编辑正文、点击封面图或正文图片上传；
 5. 保存。文件会直接写入项目：
    - 文章：`src/content/posts/*.md`
    - 动态：`src/content/moments/*.md`
-   - 图片：`public/images/uploads/`
+   - 图片：`public/media/`
+   - 音乐：`src/data/music.json`
    - 关于页：`src/content/spec/about.md`
 
 Astro 开发服务器会自动热更新；刷新前台页面即可看到新内容。
@@ -46,7 +47,7 @@ Astro 开发服务器会自动热更新；刷新前台页面即可看到新内�
 
 ## 二、上传图片
 
-- 图片会上传到 `public/images/uploads/`，前台 URL 为 `/images/uploads/...`；
+- 图片和音频会上传到 `public/media/`，前台 URL 为 `/media/...`；
 - 文章“封面图”字段、Markdown 正文里的图片、动态图片都使用同一个媒体库；
 - 建议上传 WebP/JPG/PNG，单张控制在 1–2 MB 以内；
 - 上传的图片是仓库文件，会随 Git 提交一起部署，不需要 R2。
@@ -102,7 +103,7 @@ base_url: https://your-sveltia-auth.workers.dev
 - `/admin/` 是公开静态页面，真正的写权限由 GitHub 登录控制；如需进一步保护，
   可以在 Cloudflare 侧加 Access 策略。
 - 删除文章会删除本地/GitHub 文件，操作前请确认；没有回收站。
-- 当前 CMS 只管理文章、动态和关于页；项目元数据在 `src/data/projects.ts`，
+- 当前 CMS 管理文章、动态、音乐和关于页；项目元数据在 `src/data/projects.ts`，
   项目长文在 `src/content/spec/projects/`，相册在 `public/images/albums/`。
 - CMS 脚本已 vendored 到 `public/admin/sveltia-cms.js`（约 2.5 MB），
   不依赖外部 CDN，也不影响前台页面性能。
@@ -116,4 +117,4 @@ base_url: https://your-sveltia-auth.workers.dev
 | 选择目录时报“not a repository root” | 选择包含 `.git` 的项目根目录 |
 | 保存文章后构建失败 | 检查 `published` 日期、`tags` 数组和 `image` 路径；与 `src/content.config.ts` 对齐 |
 | 在线登录失败 | 确认 repo 名称、分支、token 的 Contents 写权限 |
-| 上传图片后前台不显示 | 确认图片在 `public/images/uploads/`，路径以 `/images/uploads/` 开头 |
+| 上传图片后前台不显示 | 确认图片在 `public/media/`，路径以 `/media/` 开头 |

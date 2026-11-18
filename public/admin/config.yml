@@ -22,8 +22,8 @@ display_url: https://alanke-space.lanjiawei861.workers.dev
 logo_url: /logo/icon.webp
 
 # 文章封面、正文图片、动态图片都会上传到这里。
-media_folder: public/images/uploads
-public_folder: /images/uploads
+media_folder: public/media
+public_folder: /media
 
 # 未填写的可选字段不要写成空字符串，避免 Astro/Zod 校验失败。
 output:
@@ -96,6 +96,34 @@ collections:
       - { name: draft, label: 草稿, widget: boolean, default: false, required: false }
       - { name: body, label: 内容, widget: markdown, required: false }
 
+  - name: music
+    label: 音乐空间
+    format: json
+    files:
+      - name: library
+        label: 曲库与页面文案
+        file: src/data/music.json
+        fields:
+          - name: profile
+            label: 页面文案
+            widget: object
+            fields:
+              - { name: title, label: 标题, widget: string }
+              - { name: description, label: 描述, widget: text }
+              - { name: note, label: 提示, widget: text, required: false }
+          - name: tracks
+            label: 曲目
+            widget: list
+            summary: "{{fields.title}} — {{fields.artist}}"
+            fields:
+              - { name: id, label: 唯一 ID, widget: string, hint: "英文、数字或短横线，不能重复，例如 my-song" }
+              - { name: title, label: 歌曲名, widget: string }
+              - { name: artist, label: 歌手, widget: string }
+              - { name: album, label: 专辑, widget: string, required: false }
+              - { name: cover, label: 封面, widget: image, required: false, hint: 上传到 public/media }
+              - { name: source, label: 音频文件, widget: file, required: true, hint: 上传 MP3 文件；也可以填写已有路径 }
+              - { name: duration, label: 时长（秒）, widget: number, required: false }
+              - { name: lyrics, label: 歌词, widget: text, required: false }
   - name: about
     label: 关于页面
     files:

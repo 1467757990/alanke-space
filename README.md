@@ -122,7 +122,7 @@ pnpm preview
 
 - 文章：`src/content/posts/`
 - 动态：`src/content/moments/`
-- 图片：`public/images/uploads/`
+- 图片：`public/media/`
 - 关于页：`src/content/spec/about.md`
 
 部署后在线编辑需要先在 `public/admin/config.yml` 填写 GitHub 仓库，
@@ -150,9 +150,9 @@ draft: false
 
 ### 音乐
 
-- 曲目数据：`src/data/music.ts`
+- 曲目数据：`src/data/music.json`（可在 `/admin/` 的“音乐空间”中编辑）
 - 音频：`public/assets/music/url/*.mp3`
-- 封面：`public/assets/music/cover/*.webp`
+- 封面：`public/media/music/cover/*.webp`
 - 配置：`src/config/musicConfig.ts`（当前为 `provider: "local"`）
 
 四首曲目均为本项目用合成器生成的原创示例音频，不包含商业歌曲，也不依赖 Meting/第三方下载接口。
