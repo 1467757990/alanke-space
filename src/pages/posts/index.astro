@@ -23,7 +23,14 @@ const description = i18n(I18nKey.blogBanner);
 					{title}
 					subtitle={description}
 				/>
-				<a class="blog-index__rss" href={url("/rss.xml")}>RSS</a>
+				<div class="blog-index__actions">
+					<a class="blog-index__rss" href={url("/rss.xml")}>RSS</a>
+					<a
+						class="blog-index__admin"
+						href={import.meta.env.DEV ? url("/admin/index.html") : url("/admin/")}
+						data-no-swup
+					>内容管理</a>
+				</div>
 			</div>
 		</Card>
 
@@ -48,6 +55,24 @@ const description = i18n(I18nKey.blogBanner);
 		gap: var(--m3e-space-3)
 		:global(.page-header)
 			margin-bottom: 0
+
+	&__actions
+		display: inline-flex
+		flex-wrap: wrap
+		gap: 0.4rem
+
+	&__admin
+		display: inline-flex
+		align-items: center
+		padding: 0.3rem 0.7rem
+		border-radius: var(--shape-corner-full)
+		background: var(--primary)
+		color: var(--on-primary)
+		font: var(--m3e-type-label-large)
+		font-weight: 700
+		text-decoration: none
+		&:hover
+			background: unquote("color-mix(in oklab, var(--primary) 86%, var(--on-primary))")
 
 	&__rss
 		display: inline-flex
