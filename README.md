@@ -1,5 +1,9 @@
 # Alanke's Space
 
+线上站点：https://alanke-space.lanjiawei861.workers.dev/
+
+内容工作台：https://alanke-space.lanjiawei861.workers.dev/admin/
+
 一个面向个人长期维护的 **数字花园（Personal Digital Garden）**：技术博客 + 音乐空间 + 生活相册 + 生活动态 + 开发者作品集。
 
 站点基于开源主题 [Shirone](https://github.com/LyraVoid/Shirone) 二次开发，保留其 Material 3 Expressive 设计系统、Astro 内容管线、Pagefind 搜索、Swup 持久壳与无障碍支持，并在此基础上加入个人首页、全局音乐播放器、独立音乐页、项目详情页与本地化示例内容。

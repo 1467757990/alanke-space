@@ -3,7 +3,18 @@
 本项目是纯静态 Astro 站点：构建产物在 `dist/`，不需要数据库、服务端运行时或登录系统。
 Cloudflare Pages 只负责托管静态文件；所有内容在构建时预渲染。
 
-## 0. 版本要求（以真实配置为准）
+## 0. 当前实际部署
+
+当前线上部署是 **Cloudflare Worker + Static Assets**，不是 Pages 项目：
+
+```text
+https://alanke-space.lanjiawei861.workers.dev/
+```
+
+构建由 Workers Builds 连接 GitHub 自动触发，配置见仓库根目录 `wrangler.toml`。
+之后的 Pages 说明保留作为可选迁移路径。
+
+## 1. 版本要求（以真实配置为准）
 
 | 项目 | 要求 | 来源 |
 | --- | --- | --- |
