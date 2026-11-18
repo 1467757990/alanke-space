@@ -87,6 +87,16 @@ function isActive(link: (typeof links)[number]): boolean {
 			})}
 		</nav>
 		<div class="flex-1"></div>
+		<a
+			href={import.meta.env.DEV ? url("/admin/index.html") : url("/admin/")}
+			data-no-swup
+			aria-label="内容管理"
+			title="内容管理"
+			class="m3-state-layer relative hidden md:inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[var(--on-surface)] transition-colors hover:text-[var(--primary)]"
+			style="--m3e-state-color: var(--on-surface);"
+		>
+			<Icon icon="material-symbols:edit-square-outline-rounded" class="text-[1.25rem]"></Icon>
+		</a>
 		<Search client:only="svelte"></Search>
 		{!siteConfig.themeColor.fixed && (
 			<IconButton id="display-settings-switch" label={i18n(I18nKey.displaySettings)} class="shrink-0">
