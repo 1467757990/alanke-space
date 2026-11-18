@@ -1,0 +1,748 @@
+---
+/** 首页：个人数字花园落地页（Hero + 最近文章 / 项目 / 动态 / 相册 / 音乐）。 */
+import { getImage } from "astro:assets";
+import Icon from "@components/atoms/display/Icon.svelte";
+import HomeSectionHeader from "@components/molecules/HomeSectionHeader.astro";
+import ProjectCard from "@components/molecules/ProjectCard.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { scanVisibleAlbums, toAlbumIndexItem } from "@utils/album-scanner";
+import { resolveImageAsset } from "@utils/asset-utils";
+import { getSortedMoments, getSortedPosts } from "@utils/content-utils";
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { withOptimizedMusicCovers } from "@utils/music/cover-assets";
+import { getPostUrl, url } from "@utils/url-utils";
+import {
+	musicConfig,
+	profileConfig,
+	projectsConfig,
+	resolveMusicOptions,
+} from "@/config";
+import { homeProfile } from "@/data/home";
+import { musicProfile } from "@/data/music";
+import { resolveProjectsData } from "@/utils/feature-data";
+
+const allPosts = await getSortedPosts();
+const allMoments = await getSortedMoments();
+const allAlbums = scanVisibleAlbums().map(toAlbumIndexItem);
+const allProjects = resolveProjectsData(projectsConfig);
+
+const posts = allPosts.slice(0, 3);
+const moments = allMoments.slice(0, 3);
+const albums = allAlbums.slice(0, 3);
+const projects = [...allProjects]
+	.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)))
+	.slice(0, 3);
+
+const baseMusicOptions = resolveMusicOptions(musicConfig);
+const musicOptions = baseMusicOptions
+	? await withOptimizedMusicCovers(baseMusicOptions)
+	: null;
+const tracks = musicOptions?.playlist.slice(0, 3) ?? [];
+const musicCover = tracks[0]?.cover ?? "";
+
+const avatarAsset = await resolveImageAsset(profileConfig.avatar ?? "");
+let avatar = typeof avatarAsset === "string" ? avatarAsset : avatarAsset.src;
+if (typeof avatarAsset !== "string") {
+	avatar = (
+		await getImage({
+			src: avatarAsset,
+			width: 320,
+			format: "webp",
+			quality: 82,
+		})
+	).src;
+}
+
+function stripHtml(value: string): string {
+	return value
+		.replace(/<[^>]*>/g, " ")
+		.replace(/&nbsp;/g, " ")
+		.replace(/&amp;/g, "&")
+		.replace(/\s+/g, " ")
+		.trim();
+}
+
+function day(value: Date | string): string {
+	return formatDateToYYYYMMDD(new Date(value));
+}
+
+function albumHref(id: string): string {
+	return url(`/albums/${id}/`);
+}
+---
+
+<MainGridLayout
+	title={i18n(I18nKey.home)}
+	description={homeProfile.subtitle}
+	page="home"
+>
+	<div class="home-page">
+		<section class="home-hero alanke-glass" aria-labelledby="home-hero-title">
+			<div class="home-hero__glow" aria-hidden="true"></div>
+			<div class="home-hero__copy">
+				<p class="home-hero__eyebrow">{homeProfile.eyebrow}</p>
+				<h1 id="home-hero-title">
+					<span class="alanke-gradient-text">{homeProfile.title}</span>
+				</h1>
+				<p class="home-hero__subtitle">{homeProfile.subtitle}</p>
+				<p class="home-hero__intro">{homeProfile.intro}</p>
+
+				<ul class="home-hero__tags" aria-label="技术标签">
+					{homeProfile.tags.map((tag) => <li>{tag}</li>)}
+				</ul>
+
+				<div class="home-hero__actions">
+					<a class="home-btn home-btn--primary" href="/projects/">
+						<Icon icon="material-symbols:deployed-code-outline-rounded" />
+						{i18n(I18nKey.projects)}
+					</a>
+					<a class="home-btn" href="/about/">
+						<Icon icon="material-symbols:person-outline-rounded" />
+						{i18n(I18nKey.about)}
+					</a>
+					<a
+						class="home-btn home-btn--ghost"
+						href={homeProfile.github}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<Icon icon="fa7-brands:github" />
+						GitHub
+					</a>
+				</div>
+			</div>
+
+			<div class="home-hero__visual">
+				<div class="home-hero__avatar-wrap">
+					<span class="home-hero__orbit home-hero__orbit--1" aria-hidden="true"></span>
+					<span class="home-hero__orbit home-hero__orbit--2" aria-hidden="true"></span>
+					<img
+						class="home-hero__avatar"
+						src={avatar}
+						alt={`${profileConfig.name} 的头像`}
+						width="320"
+						height="320"
+						loading="eager"
+						decoding="async"
+					/>
+				</div>
+				<div class="home-hero__stats">
+					<div><strong>{allPosts.length}</strong><span>文章</span></div>
+					<div><strong>{allProjects.length}</strong><span>项目</span></div>
+					<div><strong>{allAlbums.length}</strong><span>相册</span></div>
+				</div>
+			</div>
+		</section>
+
+		<section class="home-section" aria-labelledby="home-posts-title">
+			<HomeSectionHeader
+				title={i18n(I18nKey.recentPosts)}
+				subtitle={i18n(I18nKey.blogBanner)}
+				icon="material-symbols:article-outline-rounded"
+				href="/posts/"
+				linkLabel={i18n(I18nKey.viewAll)}
+			/>
+			<div class="home-grid">
+				{posts.map((post, index) => (
+					<a
+						class="home-post-card alanke-glass"
+						href={getPostUrl(post)}
+						style={"--delay: " + index * 60 + "ms"}
+					>
+						{post.data.image && (
+							<div class="home-post-card__cover">
+								<img
+									src={post.data.image}
+									alt=""
+									loading="lazy"
+									decoding="async"
+								/>
+							</div>
+						)}
+						<div class="home-post-card__body">
+							<p class="home-post-card__meta">
+								<time datetime={day(post.data.published)}>{day(post.data.published)}</time>
+								{post.data.category && <span>{post.data.category}</span>}
+							</p>
+							<h3>{post.data.title}</h3>
+							<p class="home-post-card__desc">{post.data.description}</p>
+							<div class="home-post-card__tags">
+								{post.data.tags.slice(0, 3).map((tag) => <span>#{tag}</span>)}
+							</div>
+						</div>
+					</a>
+				))}
+			</div>
+		</section>
+
+		<section class="home-section" aria-labelledby="home-projects-title">
+			<HomeSectionHeader
+				title={i18n(I18nKey.projects)}
+				subtitle={i18n(I18nKey.projectsBanner)}
+				icon="material-symbols:deployed-code-outline-rounded"
+				href="/projects/"
+				linkLabel={i18n(I18nKey.viewAll)}
+			/>
+			<div class="home-grid home-grid--projects">
+				{projects.map((project) => <ProjectCard {project} />)}
+			</div>
+		</section>
+
+		<section class="home-section" aria-labelledby="home-moments-title">
+			<HomeSectionHeader
+				title={i18n(I18nKey.moments)}
+				subtitle={i18n(I18nKey.momentsBanner)}
+				icon="material-symbols:auto-awesome-outline-rounded"
+				href="/moments/"
+				linkLabel={i18n(I18nKey.viewAll)}
+			/>
+			<div class="home-grid">
+				{moments.map((moment) => (
+					<a class="home-moment-card alanke-glass" href="/moments/">
+						<div class="home-moment-card__head">
+							<time datetime={moment.published}>{day(moment.published)}</time>
+							{moment.mood && <Icon icon={moment.mood} />}
+						</div>
+						<p>{stripHtml(moment.html) || "—"}</p>
+						{moment.images[0] && (
+							<img
+								class="home-moment-card__image"
+								src={moment.images[0].thumbnailSrc ?? moment.images[0].src}
+								alt={moment.images[0].alt}
+								loading="lazy"
+								decoding="async"
+							/>
+						)}
+						<div class="home-moment-card__foot">
+							{moment.tags.slice(0, 3).map((tag) => <span>#{tag}</span>)}
+						</div>
+					</a>
+				))}
+			</div>
+		</section>
+
+		<section class="home-section" aria-labelledby="home-albums-title">
+			<HomeSectionHeader
+				title={i18n(I18nKey.albums)}
+				subtitle={i18n(I18nKey.albumsBanner)}
+				icon="material-symbols:photo-library-outline-rounded"
+				href="/albums/"
+				linkLabel={i18n(I18nKey.viewAll)}
+			/>
+			<div class="home-grid">
+				{albums.map((album) => (
+					<a class="home-album-card alanke-glass" href={albumHref(album.id)}>
+						<div class="home-album-card__cover">
+							<img src={album.cover} alt="" loading="lazy" decoding="async" />
+							<span>{album.photoCount} 张</span>
+						</div>
+						<div class="home-album-card__body">
+							<h3>{album.title}</h3>
+							<p>{album.description}</p>
+							<small>{album.date} · {album.location}</small>
+						</div>
+					</a>
+				))}
+			</div>
+		</section>
+
+		{tracks.length > 0 && (
+			<section class="home-section" aria-labelledby="home-music-title">
+				<HomeSectionHeader
+					title={i18n(I18nKey.music)}
+					subtitle={musicProfile.description}
+					icon="material-symbols:headphones-rounded"
+					href="/music/"
+					linkLabel={i18n(I18nKey.viewAll)}
+				/>
+				<a class="home-music alanke-glass" href="/music/">
+					<div class="home-music__cover">
+						<img src={musicCover} alt="" loading="lazy" decoding="async" />
+						<span class="home-music__play" aria-hidden="true">
+							<Icon icon="material-symbols:play-arrow-rounded" />
+						</span>
+					</div>
+					<div class="home-music__body">
+						<p class="home-music__eyebrow">ALANKE AUDIO</p>
+						<h3>{musicProfile.title}</h3>
+						<ol>
+							{tracks.map((track, index) => (
+								<li>
+									<span>{String(index + 1).padStart(2, "0")}</span>
+									<strong>{track.title}</strong>
+									<small>{track.artist}</small>
+								</li>
+							))}
+						</ol>
+						<span class="home-music__cta">
+							打开音乐空间
+							<span aria-hidden="true">→</span>
+						</span>
+					</div>
+				</a>
+			</section>
+		)}
+	</div>
+</MainGridLayout>
+
+<style lang="stylus">
+.home-page
+	display: flex
+	flex-direction: column
+	gap: var(--m3e-space-6)
+
+.home-hero
+	position: relative
+	display: grid
+	grid-template-columns: minmax(0, 1.45fr) minmax(15rem, 0.55fr)
+	gap: var(--m3e-space-6)
+	align-items: center
+	padding: unquote("clamp(1.4rem, 4vw, 3rem)")
+	border-radius: var(--shape-corner-xl)
+	overflow: hidden
+	@media (max-width: 900px)
+		grid-template-columns: minmax(0, 1fr)
+		gap: var(--m3e-space-4)
+
+	&__glow
+		position: absolute
+		inset: -30% -10% auto auto
+		width: 34rem
+		height: 34rem
+		border-radius: 50%
+		background: radial-gradient(circle, unquote("color-mix(in oklab, var(--primary) 22%, transparent)"), transparent 68%)
+		pointer-events: none
+		filter: blur(8px)
+		opacity: 0.9
+
+	&__copy
+		position: relative
+		z-index: 1
+		display: flex
+		flex-direction: column
+		gap: 0.7rem
+
+	&__eyebrow
+		margin: 0
+		color: var(--primary)
+		font: var(--m3e-type-label-small)
+		font-weight: 700
+		letter-spacing: 0.18em
+
+	h1
+		margin: 0
+		max-width: 15em
+		text-wrap: balance
+		font: var(--m3e-type-display-small)
+		letter-spacing: -0.04em
+		line-height: 1.12
+		@media (max-width: 640px)
+			font: var(--m3e-type-headline-medium)
+
+	&__subtitle
+		margin: 0
+		max-width: 38rem
+		color: var(--on-surface)
+		font: var(--m3e-type-title-medium)
+		opacity: 0.85
+
+	&__intro
+		margin: 0
+		max-width: 44rem
+		color: var(--on-surface-variant)
+		font: var(--m3e-type-body-medium)
+		line-height: 1.7
+
+	&__tags
+		display: flex
+		flex-wrap: wrap
+		gap: 0.35rem
+		list-style: none
+		margin: 0.15rem 0 0
+		padding: 0
+		li
+			padding: 0.2rem 0.55rem
+			border-radius: var(--shape-corner-full)
+			background: unquote("color-mix(in oklab, var(--surface-container-highest) 82%, transparent)")
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-label-small)
+
+	&__actions
+		display: flex
+		flex-wrap: wrap
+		gap: 0.5rem
+		margin-top: 0.4rem
+
+	&__visual
+		position: relative
+		z-index: 1
+		display: flex
+		flex-direction: column
+		align-items: center
+		gap: var(--m3e-space-3)
+
+	&__avatar-wrap
+		position: relative
+		width: unquote("clamp(9rem, 16vw, 12rem)")
+		aspect-ratio: 1
+		display: grid
+		place-items: center
+
+	&__avatar
+		position: relative
+		z-index: 1
+		width: 78%
+		height: 78%
+		border-radius: 50%
+		object-fit: cover
+		border: 3px solid unquote("color-mix(in oklab, var(--surface) 70%, transparent)")
+		box-shadow: var(--m3e-elevation-3)
+
+	&__orbit
+		position: absolute
+		inset: 4%
+		border-radius: 50%
+		border: 1px dashed unquote("color-mix(in oklab, var(--primary) 34%, transparent)")
+		animation: home-orbit 26s linear infinite
+
+		&--2
+			inset: 14%
+			border-style: solid
+			border-color: unquote("color-mix(in oklab, var(--tertiary) 22%, transparent)")
+			animation-direction: reverse
+			animation-duration: 34s
+
+	&__stats
+		display: grid
+		grid-template-columns: repeat(3, minmax(0, 1fr))
+		gap: 0.4rem
+		width: 100%
+		div
+			display: flex
+			flex-direction: column
+			align-items: center
+			padding: 0.5rem 0.4rem
+			border-radius: var(--shape-corner-m)
+			background: unquote("color-mix(in oklab, var(--surface-container-high) 65%, transparent)")
+		strong
+			color: var(--on-surface)
+			font: var(--m3e-type-title-medium)
+		span
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-label-small)
+
+.home-btn
+	display: inline-flex
+	align-items: center
+	gap: 0.35rem
+	padding: 0.5rem 0.9rem
+	border-radius: var(--shape-corner-full)
+	border: 1px solid unquote("color-mix(in oklab, var(--on-surface) 14%, transparent)")
+	background: unquote("color-mix(in oklab, var(--surface-container-high) 70%, transparent)")
+	color: var(--on-surface)
+	font: var(--m3e-type-label-large)
+	font-weight: 600
+	text-decoration: none
+	transition: transform var(--m3e-duration-short) var(--m3e-easing-standard), background-color var(--m3e-duration-short) var(--m3e-easing-standard)
+	> :global(svg)
+		width: 1.05rem
+		height: 1.05rem
+	&:hover
+		transform: translateY(-1px)
+		background: unquote("color-mix(in oklab, var(--primary) 13%, transparent)")
+
+	&--primary
+		background: var(--primary)
+		color: var(--on-primary)
+		border-color: transparent
+		&:hover
+			background: unquote("color-mix(in oklab, var(--primary) 88%, var(--on-primary) 12%)")
+
+	&--ghost
+		background: transparent
+
+.home-section
+	display: flex
+	flex-direction: column
+
+.home-grid
+	display: grid
+	grid-template-columns: repeat(3, minmax(0, 1fr))
+	gap: var(--m3e-space-3)
+	@media (max-width: 1200px)
+		grid-template-columns: repeat(2, minmax(0, 1fr))
+	@media (max-width: 700px)
+		grid-template-columns: minmax(0, 1fr)
+
+	&--projects
+		align-items: stretch
+
+.home-post-card,
+.home-album-card,
+.home-moment-card,
+.home-music
+	border-radius: var(--shape-corner-l)
+	overflow: hidden
+	color: inherit
+	text-decoration: none
+	transition: transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate), box-shadow var(--m3e-duration-medium) var(--m3e-easing-standard)
+	&:hover
+		transform: translateY(-3px)
+		box-shadow: var(--m3e-elevation-3)
+
+.home-post-card
+	display: flex
+	flex-direction: column
+	min-width: 0
+
+	&__cover
+		aspect-ratio: 16 / 9
+		overflow: hidden
+		background: var(--surface-container-high)
+		img
+			width: 100%
+			height: 100%
+			object-fit: cover
+			display: block
+			transition: transform var(--m3e-duration-long) var(--m3e-easing-emphasized-decelerate)
+		.home-post-card:hover &
+			transform: scale(1.03)
+
+	&__body
+		display: flex
+		flex-direction: column
+		gap: 0.45rem
+		padding: var(--m3e-space-4)
+		min-width: 0
+		h3
+			margin: 0
+			font: var(--m3e-type-title-medium)
+			line-height: 1.35
+			color: var(--on-surface)
+
+	&__meta
+		display: flex
+		flex-wrap: wrap
+		gap: 0.5rem
+		margin: 0
+		color: var(--on-surface-variant)
+		font: var(--m3e-type-label-small)
+		span
+			color: var(--primary)
+
+	&__desc
+		display: -webkit-box
+		-webkit-line-clamp: 2
+		-webkit-box-orient: vertical
+		overflow: hidden
+		margin: 0
+		color: var(--on-surface-variant)
+		font: var(--m3e-type-body-small)
+		line-height: 1.6
+
+	&__tags
+		display: flex
+		flex-wrap: wrap
+		gap: 0.3rem
+		margin-top: auto
+		padding-top: 0.25rem
+		span
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-label-small)
+
+.home-moment-card
+	display: flex
+	flex-direction: column
+	gap: 0.55rem
+	padding: var(--m3e-space-4)
+	min-width: 0
+	p
+		margin: 0
+		color: var(--on-surface)
+		font: var(--m3e-type-body-small)
+		line-height: 1.65
+		display: -webkit-box
+		-webkit-line-clamp: 4
+		-webkit-box-orient: vertical
+		overflow: hidden
+
+	&__head
+		display: flex
+		align-items: center
+		justify-content: space-between
+		color: var(--on-surface-variant)
+		font: var(--m3e-type-label-small)
+		> :global(svg)
+			width: 1.1rem
+			height: 1.1rem
+			color: var(--primary)
+
+	&__image
+		width: 100%
+		aspect-ratio: 16 / 10
+		object-fit: cover
+		border-radius: var(--shape-corner-m)
+		display: block
+
+	&__foot
+		display: flex
+		flex-wrap: wrap
+		gap: 0.3rem
+		margin-top: auto
+		span
+			color: var(--primary)
+			font: var(--m3e-type-label-small)
+
+.home-album-card
+	display: flex
+	flex-direction: column
+	min-width: 0
+
+	&__cover
+		position: relative
+		aspect-ratio: 4 / 3
+		overflow: hidden
+		background: var(--surface-container-high)
+		img
+			width: 100%
+			height: 100%
+			object-fit: cover
+			display: block
+			transition: transform var(--m3e-duration-long) var(--m3e-easing-emphasized-decelerate)
+		.home-album-card:hover &
+			transform: scale(1.03)
+		span
+			position: absolute
+			right: 0.5rem
+			bottom: 0.5rem
+			padding: 0.15rem 0.45rem
+			border-radius: var(--shape-corner-full)
+			background: rgba(0,0,0,0.55)
+			color: #fff
+			font: var(--m3e-type-label-small)
+			backdrop-filter: blur(6px)
+
+	&__body
+		display: flex
+		flex-direction: column
+		gap: 0.25rem
+		padding: var(--m3e-space-3) var(--m3e-space-4)
+		h3
+			margin: 0
+			font: var(--m3e-type-title-small)
+			color: var(--on-surface)
+		p
+			margin: 0
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-body-small)
+			display: -webkit-box
+			-webkit-line-clamp: 2
+			-webkit-box-orient: vertical
+			overflow: hidden
+		small
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-label-small)
+
+.home-music
+	display: grid
+	grid-template-columns: minmax(9rem, 14rem) minmax(0, 1fr)
+	align-items: stretch
+	overflow: hidden
+	@media (max-width: 640px)
+		grid-template-columns: minmax(0, 1fr)
+
+	&__cover
+		position: relative
+		min-height: 12rem
+		img
+			width: 100%
+			height: 100%
+			object-fit: cover
+			display: block
+
+	&__play
+		position: absolute
+		inset: 50% auto auto 50%
+		transform: translate(-50%, -50%)
+		display: grid
+		place-items: center
+		width: 3rem
+		height: 3rem
+		border-radius: 50%
+		background: unquote("color-mix(in oklab, var(--surface) 78%, transparent)")
+		color: var(--primary)
+		backdrop-filter: blur(8px)
+		> :global(svg)
+			width: 1.5rem
+			height: 1.5rem
+
+	&__body
+		display: flex
+		flex-direction: column
+		gap: 0.3rem
+		padding: var(--m3e-space-4) var(--m3e-space-5)
+		h3
+			margin: 0 0 0.2rem
+			font: var(--m3e-type-title-large)
+			color: var(--on-surface)
+		ol
+			display: flex
+			flex-direction: column
+			gap: 0.3rem
+			list-style: none
+			margin: 0
+			padding: 0
+		li
+			display: flex
+			align-items: baseline
+			gap: 0.5rem
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-body-small)
+			span
+				color: var(--on-surface-variant)
+				font-variant-numeric: tabular-nums
+			strong
+				color: var(--on-surface)
+				font: var(--m3e-type-label-large)
+			small
+				margin-left: auto
+				font: var(--m3e-type-label-small)
+
+	&__eyebrow
+		margin: 0
+		color: var(--primary)
+		font: var(--m3e-type-label-small)
+		letter-spacing: 0.16em
+
+	&__cta
+		display: inline-flex
+		align-items: center
+		gap: 0.25rem
+		margin-top: auto
+		padding-top: 0.5rem
+		color: var(--primary)
+		font: var(--m3e-type-label-large)
+		font-weight: 600
+
+@keyframes home-orbit
+	to
+		transform: rotate(360deg)
+
+@media (prefers-reduced-motion: reduce)
+	.home-hero__orbit
+		animation: none
+	.home-post-card,
+	.home-album-card,
+	.home-moment-card,
+	.home-music,
+	.home-btn
+		transition: none
+	.home-post-card:hover,
+	.home-album-card:hover,
+	.home-moment-card:hover,
+	.home-music:hover,
+	.home-btn:hover
+		transform: none
+</style>

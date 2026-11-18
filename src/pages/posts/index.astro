@@ -1,0 +1,70 @@
+---
+/** 博客索引：沿用上游文章系统与列表布局，入口统一为 /posts/。 */
+import Card from "@components/atoms/display/Card.svelte";
+import PageHeader from "@components/molecules/PageHeader.svelte";
+import PostPage from "@components/organisms/PostPage.astro";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { getSortedPosts } from "@utils/content-utils";
+import { url } from "@utils/url-utils";
+
+const posts = await getSortedPosts();
+const title = i18n(I18nKey.blog);
+const description = i18n(I18nKey.blogBanner);
+---
+
+<MainGridLayout title={title} description={description} page="blog">
+	<section class="blog-index">
+		<Card color="var(--card-bg)" radius="l" class="blog-index__header">
+			<div class="blog-index__head-row">
+				<PageHeader
+					icon="material-symbols:article-outline-rounded"
+					{title}
+					subtitle={description}
+				/>
+				<a class="blog-index__rss" href={url("/rss.xml")}>RSS</a>
+			</div>
+		</Card>
+
+		<PostPage entries={posts} />
+	</section>
+</MainGridLayout>
+
+<style lang="stylus">
+.blog-index
+	display: flex
+	flex-direction: column
+	gap: var(--m3e-space-3)
+
+	&__header
+		padding: var(--m3e-space-4) var(--m3e-space-6)
+
+	&__head-row
+		display: flex
+		flex-wrap: wrap
+		align-items: flex-start
+		justify-content: space-between
+		gap: var(--m3e-space-3)
+		:global(.page-header)
+			margin-bottom: 0
+
+	&__rss
+		display: inline-flex
+		align-items: center
+		padding: 0.3rem 0.7rem
+		border-radius: var(--shape-corner-full)
+		border: 1px solid unquote("color-mix(in oklab, var(--primary) 22%, transparent)")
+		background: unquote("color-mix(in oklab, var(--primary) 8%, transparent)")
+		color: var(--primary)
+		font: var(--m3e-type-label-large)
+		font-weight: 700
+		text-decoration: none
+		&:hover
+			background: unquote("color-mix(in oklab, var(--primary) 14%, transparent)")
+
+	&__empty
+		padding: var(--m3e-space-8)
+		text-align: center
+		color: var(--on-surface-variant)
+</style>

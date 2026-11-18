@@ -1,0 +1,13 @@
+{
+  "title": "日常生活",
+  "description": "日常生活的碎片，一杯咖啡、一束光、一页书。\n（演示占位图，可替换为你的照片）",
+  "date": "2026-10-18",
+  "location": "杭州 · 家",
+  "tags": [
+    "日常生活",
+    "生活"
+  ],
+  "layout": "masonry",
+  "columns": 3,
+  "hidden": false
+}

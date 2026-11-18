@@ -1,0 +1,13 @@
+{
+  "title": "校园记录",
+  "description": "校园里走过的地方，和那些安静学习的下午。\n（演示占位图，可替换为你的照片）",
+  "date": "2026-09-12",
+  "location": "校园",
+  "tags": [
+    "校园记录",
+    "学习"
+  ],
+  "layout": "masonry",
+  "columns": 3,
+  "hidden": false
+}

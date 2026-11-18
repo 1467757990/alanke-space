@@ -1,0 +1,106 @@
+# Alanke's Space — Sveltia CMS
+#
+# 本地使用（无需登录）：
+#   1. pnpm dev
+#   2. 用 Chrome/Edge 打开 http://localhost:4321/admin/index.html
+#   3. 点击 "Work with Local Repository"，选择项目根目录
+#
+# 部署后在线使用：
+#   1. 把 backend.repo 改成你的 GitHub 仓库（owner/repo）
+#   2. 在登录页选择 "Sign In with Token"，使用有 Contents 读写权限的 PAT
+#      或按 docs/CONTENT_STUDIO.md 配置 OAuth base_url
+#   3. 保存后会在 GitHub 上产生提交，Cloudflare Pages 自动重新部署
+
+backend:
+  name: github
+  repo: 1467757990/alanke-space
+  branch: main
+  # base_url: https://your-sveltia-auth.workers.dev
+
+site_url: https://alanke-space.pages.dev
+display_url: https://alanke-space.pages.dev
+logo_url: /logo/icon.webp
+
+# 文章封面、正文图片、动态图片都会上传到这里。
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+# 未填写的可选字段不要写成空字符串，避免 Astro/Zod 校验失败。
+output:
+  omit_empty_optional_fields: true
+
+# 中文标题生成的 slug 保留 Unicode；文件按日期前缀命名，避免重名。
+slug:
+  encoding: unicode
+  clean_accents: false
+  sanitize_replacement: "-"
+  trim: true
+  lowercase: true
+  timezone: local
+
+collections:
+  - name: posts
+    label: 博客文章
+    label_singular: 文章
+    folder: src/content/posts
+    create: true
+    delete: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    preview_path: "posts/{{slug}}/"
+    sortable_fields: [published, title]
+    view_filters:
+      - label: 只看草稿
+        field: draft
+        pattern: true
+    fields:
+      - { name: title, label: 标题, widget: string }
+      - name: published
+        label: 发布日期
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: false
+      - { name: description, label: 摘要, widget: text, required: false }
+      - { name: image, label: 封面图, widget: image, required: false, hint: 上传到 public/images/uploads，也可使用已有图片 }
+      - { name: tags, label: 标签, widget: list, required: false, default: [] }
+      - { name: category, label: 分类, widget: string, required: false, hint: 例如 RAG、Agent、Python、科研笔记、随笔 }
+      - { name: pinned, label: 置顶, widget: boolean, default: false, required: false }
+      - { name: draft, label: 草稿（不发布）, widget: boolean, default: false, required: false }
+      - { name: body, label: 正文, widget: markdown, hint: 支持 Markdown、代码块、公式、Mermaid、提示块与图片 }
+
+  - name: moments
+    label: 生活动态
+    label_singular: 动态
+    folder: src/content/moments
+    create: true
+    delete: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    sortable_fields: [published, pinned]
+    fields:
+      - name: published
+        label: 发布时间
+        widget: datetime
+        date_format: YYYY-MM-DD
+        time_format: HH:mm
+        picker_utc: false
+      - { name: pinned, label: 置顶, widget: boolean, default: false, required: false }
+      - { name: location, label: 地点, widget: string, required: false }
+      - { name: mood, label: 心情图标, widget: string, required: false, hint: "Iconify 名称，例如 material-symbols:coffee-rounded" }
+      - { name: tags, label: 标签, widget: list, required: false, default: [] }
+      - name: images
+        label: 图片
+        widget: list
+        required: false
+        fields:
+          - { name: src, label: 图片文件, widget: image }
+          - { name: alt, label: 图片说明, widget: string, required: false }
+      - { name: draft, label: 草稿, widget: boolean, default: false, required: false }
+      - { name: body, label: 内容, widget: markdown, required: false }
+
+  - name: about
+    label: 关于页面
+    files:
+      - name: about
+        label: 关于内容
+        file: src/content/spec/about.md
+        fields:
+          - { name: body, label: 页面内容, widget: markdown }

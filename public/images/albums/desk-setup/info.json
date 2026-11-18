@@ -1,0 +1,13 @@
+{
+  "title": "桌面与设备",
+  "description": "一方桌面，是写代码、读论文和发呆的地方。\n（演示占位图，可替换为你的照片）",
+  "date": "2026-07-06",
+  "location": "书桌",
+  "tags": [
+    "桌面与设备",
+    "数码"
+  ],
+  "layout": "masonry",
+  "columns": 3,
+  "hidden": false
+}

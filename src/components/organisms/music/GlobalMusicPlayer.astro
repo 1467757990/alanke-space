@@ -1,0 +1,21 @@
+---
+import { withOptimizedMusicCovers } from "@utils/music/cover-assets";
+import { getMusicLabels } from "@utils/music/labels";
+/** 全站音乐悬浮播放器：服务端解析配置与封面，客户端只负责交互。 */
+import { musicConfig, resolveMusicOptions } from "@/config/musicConfig";
+import GlobalMusicPlayerClient from "./GlobalMusicPlayerClient.svelte";
+
+const baseOptions = resolveMusicOptions(musicConfig);
+const options = baseOptions
+	? await withOptimizedMusicCovers(baseOptions)
+	: null;
+const labels = getMusicLabels();
+---
+
+{options && (
+	<GlobalMusicPlayerClient
+		{options}
+		{labels}
+		client:load
+	/>
+)}

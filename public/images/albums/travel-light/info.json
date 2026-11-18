@@ -1,0 +1,13 @@
+{
+  "title": "旅行",
+  "description": "在路上的光与风，保持对世界的好奇。\n（演示占位图，可替换为你的照片）",
+  "date": "2026-08-24",
+  "location": "云南 · 大理",
+  "tags": [
+    "旅行",
+    "风景"
+  ],
+  "layout": "masonry",
+  "columns": 3,
+  "hidden": false
+}

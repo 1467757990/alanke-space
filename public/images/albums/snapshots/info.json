@@ -1,0 +1,13 @@
+{
+  "title": "随手拍",
+  "description": "没有主题的随手拍，记录当时的光线。\n（演示占位图，可替换为你的照片）",
+  "date": "2026-06-15",
+  "location": "日常",
+  "tags": [
+    "随手拍",
+    "光影"
+  ],
+  "layout": "masonry",
+  "columns": 3,
+  "hidden": false
+}

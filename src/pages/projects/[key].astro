@@ -1,0 +1,247 @@
+---
+/** 项目详情页：卡片数据来自 src/data/projects.ts，长文来自 src/content/spec/projects/<key>.md。 */
+import { getEntry, render } from "astro:content";
+import Card from "@components/atoms/display/Card.svelte";
+import Icon from "@components/atoms/display/Icon.svelte";
+import Markdown from "@components/content/Markdown.astro";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { getMarkdownStylesheetAssets } from "@utils/markdown-assets";
+import { url } from "@utils/url-utils";
+import type { GetStaticPaths } from "astro";
+import { projectsConfig } from "@/config/projectsConfig";
+import { projectsData } from "@/data/projects";
+import type { ProjectItem, ProjectPhase } from "@/types/projectsConfig";
+
+export const getStaticPaths = (() => {
+	const disabled = new Set(projectsConfig.disabledKeys ?? []);
+	return projectsData
+		.filter((project) => project.enable !== false && !disabled.has(project.key))
+		.map((project) => ({
+			params: { key: project.key },
+			props: { project },
+		}));
+}) satisfies GetStaticPaths;
+
+interface Props {
+	project: ProjectItem;
+}
+
+const { project } = Astro.props;
+
+if (!projectsConfig.enable) {
+	return Astro.redirect("/404/");
+}
+
+const phaseLabel: Record<ProjectPhase, I18nKey> = {
+	shipped: I18nKey.projectPhaseShipped,
+	building: I18nKey.projectPhaseBuilding,
+	exploring: I18nKey.projectPhaseExploring,
+	planning: I18nKey.projectPhasePlanning,
+};
+
+const phaseIcon: Record<ProjectPhase, string> = {
+	shipped: "material-symbols:check-circle-outline-rounded",
+	building: "material-symbols:construction-rounded",
+	exploring: "material-symbols:explore-outline-rounded",
+	planning: "material-symbols:edit-note-rounded",
+};
+
+const entry = await getEntry("spec", `projects/${project.key}`);
+if (!entry) {
+	throw new Error(`Project detail content not found: projects/${project.key}`);
+}
+const { Content, remarkPluginFrontmatter } = await render(entry);
+const markdownStylesheetAssets = await getMarkdownStylesheetAssets(
+	remarkPluginFrontmatter.markdownSyntaxes,
+);
+---
+
+<MainGridLayout
+	title={project.title}
+	description={project.summary}
+	page="projects"
+	setOGTypeArticle
+>
+	{markdownStylesheetAssets.map(({ pack, css }) => (
+		<style is:inline slot="head" data-swup-optional={pack} set:html={css}></style>
+	))}
+
+	<div class="project-detail">
+		<a class="project-detail__back" href={url("/projects/")}>
+			<span aria-hidden="true">←</span>
+			{i18n(I18nKey.backToProjects)}
+		</a>
+
+		<Card color="var(--card-bg)" radius="l" class="project-detail__hero">
+			{project.cover && (
+				<div class="project-detail__cover">
+					<img
+						src={project.cover}
+						alt={project.coverAlt ?? project.title}
+						loading="eager"
+						decoding="async"
+					/>
+					<span class="project-detail__scrim" aria-hidden="true"></span>
+				</div>
+			)}
+			<div class="project-detail__head">
+				<div class="project-detail__title-row">
+					<h1>{project.title}</h1>
+					<span class="project-detail__phase">
+						<Icon icon={phaseIcon[project.phase]} />
+						{i18n(phaseLabel[project.phase])}
+					</span>
+				</div>
+				<p class="project-detail__summary">{project.summary}</p>
+				<ul class="project-detail__tech" aria-label={i18n(I18nKey.projectTechnologies)}>
+					{project.technologies.map((technology) => <li>{technology}</li>)}
+				</ul>
+				<div class="project-detail__actions">
+					{project.repository && (
+						<a href={project.repository} target="_blank" rel="noopener noreferrer">
+							{i18n(I18nKey.projectSource)}
+						</a>
+					)}
+					{project.website && (
+						<a href={project.website} target="_blank" rel="noopener noreferrer">
+							{i18n(I18nKey.projectVisit)}
+						</a>
+					)}
+					<a href={url("/resume.pdf")} target="_blank" rel="noopener noreferrer">
+						{i18n(I18nKey.resume)}
+					</a>
+				</div>
+			</div>
+		</Card>
+
+		<Card color="var(--card-bg)" radius="l" class="project-detail__content">
+			<h2 class="project-detail__content-title">{i18n(I18nKey.projectDetails)}</h2>
+			<Markdown class="custom-md">
+				<Content />
+			</Markdown>
+		</Card>
+	</div>
+</MainGridLayout>
+
+<style lang="stylus">
+.project-detail
+	display: flex
+	flex-direction: column
+	gap: var(--m3e-space-4)
+
+	&__back
+		display: inline-flex
+		align-items: center
+		gap: 0.35rem
+		align-self: flex-start
+		padding: 0.35rem 0.75rem
+		border-radius: var(--shape-corner-full)
+		color: var(--primary)
+		font: var(--m3e-type-label-large)
+		text-decoration: none
+		background: unquote("color-mix(in oklab, var(--primary) 8%, transparent)")
+		&:hover
+			background: unquote("color-mix(in oklab, var(--primary) 14%, transparent)")
+
+	&__hero
+		position: relative
+		overflow: hidden
+
+	&__cover
+		position: relative
+		width: 100%
+		aspect-ratio: 21 / 8
+		min-height: 11rem
+		background: var(--surface-container-high)
+		img
+			width: 100%
+			height: 100%
+			object-fit: cover
+			display: block
+
+	&__scrim
+		position: absolute
+		inset: 0
+		background: linear-gradient(180deg, transparent 35%, var(--surface-container-lowest) 100%)
+		opacity: 0.85
+
+	&__head
+		position: relative
+		display: flex
+		flex-direction: column
+		gap: var(--m3e-space-3)
+		padding: var(--m3e-space-5) var(--m3e-space-6)
+		margin-top: -4.5rem
+
+	&__title-row
+		display: flex
+		flex-wrap: wrap
+		align-items: center
+		gap: var(--m3e-space-3)
+		h1
+			margin: 0
+			font: var(--m3e-type-headline-medium)
+			color: var(--on-surface)
+			letter-spacing: -0.02em
+
+	&__phase
+		display: inline-flex
+		align-items: center
+		gap: 0.35rem
+		padding: 0.2rem 0.6rem
+		border-radius: var(--shape-corner-full)
+		background: unquote("color-mix(in oklab, var(--primary) 12%, transparent)")
+		color: var(--primary)
+		font: var(--m3e-type-label-small)
+		font-weight: 700
+
+	&__summary
+		margin: 0
+		max-width: 70ch
+		color: var(--on-surface-variant)
+		font: var(--m3e-type-body-large)
+
+	&__tech
+		display: flex
+		flex-wrap: wrap
+		gap: 0.4rem
+		list-style: none
+		margin: 0
+		padding: 0
+		li
+			padding: 0.2rem 0.6rem
+			border-radius: var(--shape-corner-full)
+			background: var(--surface-container-high)
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-label-small)
+
+	&__actions
+		display: flex
+		flex-wrap: wrap
+		gap: var(--m3e-space-2)
+		a
+			display: inline-flex
+			align-items: center
+			padding: 0.35rem 0.8rem
+			border-radius: var(--shape-corner-full)
+			border: 1px solid unquote("color-mix(in oklab, var(--primary) 20%, transparent)")
+			background: unquote("color-mix(in oklab, var(--primary) 8%, transparent)")
+			color: var(--primary)
+			font: var(--m3e-type-label-large)
+			font-weight: 600
+			text-decoration: none
+			&:hover
+				background: unquote("color-mix(in oklab, var(--primary) 16%, transparent)")
+
+	&__content
+		padding: var(--m3e-space-6)
+		@media (max-width: 640px)
+			padding: var(--m3e-space-4)
+
+	&__content-title
+		margin: 0 0 var(--m3e-space-2)
+		font: var(--m3e-type-title-large)
+		color: var(--on-surface)
+</style>

@@ -1,0 +1,86 @@
+---
+/** 首页分区标题：图标 + 标题 + 可选说明 + “查看全部”链接。 */
+import Icon from "@components/atoms/display/Icon.svelte";
+
+interface Props {
+	title: string;
+	subtitle?: string;
+	href?: string;
+	linkLabel?: string;
+	icon?: string;
+}
+
+const { title, subtitle = "", href, linkLabel = "", icon = "" } = Astro.props;
+---
+
+<header class="home-section-header">
+	<div class="home-section-header__title">
+		{icon && (
+			<span class="home-section-header__icon" aria-hidden="true">
+				<Icon icon={icon} />
+			</span>
+		)}
+		<div>
+			<h2>{title}</h2>
+			{subtitle && <p>{subtitle}</p>}
+		</div>
+	</div>
+	{href && linkLabel && (
+		<a href={href} class="home-section-header__link">
+			{linkLabel}
+			<span aria-hidden="true">→</span>
+		</a>
+	)}
+</header>
+
+<style lang="stylus">
+.home-section-header
+	display: flex
+	flex-wrap: wrap
+	align-items: flex-end
+	justify-content: space-between
+	gap: var(--m3e-space-3)
+	margin-bottom: var(--m3e-space-3)
+
+	&__title
+		display: flex
+		align-items: center
+		gap: 0.65rem
+		min-width: 0
+		h2
+			margin: 0
+			font: var(--m3e-type-title-large)
+			letter-spacing: -0.015em
+			color: var(--on-surface)
+		p
+			margin: 0.15rem 0 0
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-body-small)
+
+	&__icon
+		display: inline-flex
+		align-items: center
+		justify-content: center
+		width: 2.25rem
+		height: 2.25rem
+		flex-shrink: 0
+		border-radius: var(--shape-corner-m)
+		background: unquote("color-mix(in oklab, var(--primary) 12%, transparent)")
+		color: var(--primary)
+		> :global(svg)
+			width: 1.25rem
+			height: 1.25rem
+
+	&__link
+		display: inline-flex
+		align-items: center
+		gap: 0.25rem
+		color: var(--primary)
+		font: var(--m3e-type-label-large)
+		font-weight: 600
+		text-decoration: none
+		white-space: nowrap
+		&:hover
+			text-decoration: underline
+			text-underline-offset: 0.2em
+</style>
